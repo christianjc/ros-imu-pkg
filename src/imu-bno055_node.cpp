@@ -24,6 +24,7 @@
 
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
+#include <bno055_driver/bno055_driver.h>
 
 int main(int argc, char **argv) {
 
