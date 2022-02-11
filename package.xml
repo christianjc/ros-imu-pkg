@@ -2,8 +2,8 @@
 <package format="2">
   <name>ros-imu-pkg</name>
   <version>0.0.0</version>
-  <description>The ros-imu-pkg package contains a way to interface with the following scensors:
-   BNO055 Adafruits
+  <description>The ros-imu-pkg package contains a way to interface with the following imu scensors:
+   BNO055 Adafruits 
    </description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
