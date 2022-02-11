@@ -23,6 +23,7 @@
 */
 
 #include <ros/ros.h>
+#include <sensor_msgs/Imu.h>
 
 int main(int argc, char **argv) {
 
@@ -33,7 +34,29 @@ int main(int argc, char **argv) {
     /** Making the nodehandle object registers this node with the master node **/
     ros::NodeHandle nh;
 
+    ros::Publisher pub_bno = nh.advertise<sensor_msgs::Imu>("imu_data", 10, true);
+
+    sensor_msgs::Imu data;
+
+    ros::Rate rate(2);
+
     /** Prints a string to the INFO log **/
-    ROS_INFO_STREAM("Hello world imu node");
+    ROS_INFO_STREAM("Starting Node");
+    data.header.seq = 1;
+    data.angular_velocity.x = 2.0;
+    data.angular_velocity.y = 2.0;
+    data.angular_velocity.z = 2.0;
+    while(ros::ok()) {
+        data.angular_velocity.x++;
+        data.angular_velocity.y = 2.0;
+        data.angular_velocity.z = 2.0;
+
+        pub_bno.publish(data);
+
+        rate.sleep();
+
+    }
+
+
 
 }
