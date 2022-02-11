@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
 
     sensor_msgs::Imu data;
 
-    ros::Rate rate(2);
+    ros::Rate rate(3);
 
     /** Prints a string to the INFO log **/
     ROS_INFO_STREAM("Starting Node");
@@ -50,13 +50,15 @@ int main(int argc, char **argv) {
     
     bno055_imu::BNO055Driver node("/dev/i2c-1", 0x28);
     node.init();
+    bno055_imu::imu_data_t data2;
+    node.read_imu_data(data2);
 
 
     while(ros::ok()) {
         data.angular_velocity.x++;
         data.angular_velocity.y = 2.0;
         data.angular_velocity.z = 2.0;
-
+         node.read_imu_data(data2);
         pub_bno.publish(data);
 
         rate.sleep();

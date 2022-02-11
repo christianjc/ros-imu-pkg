@@ -343,7 +343,7 @@ class BNO055Driver {
     void init();
     bool reset();
     // bool calibrate();
-    imu_data_t read_imu_data();
+    bool read_imu_data(imu_data_t &data);
     __u8 reg(reg_t address);
 
 
