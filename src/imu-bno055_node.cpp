@@ -47,6 +47,11 @@ int main(int argc, char **argv) {
     data.angular_velocity.x = 2.0;
     data.angular_velocity.y = 2.0;
     data.angular_velocity.z = 2.0;
+    
+    bno055_imu::BNO055Driver node("/dev/i2c-1", 0x28);
+    node.init();
+
+
     while(ros::ok()) {
         data.angular_velocity.x++;
         data.angular_velocity.y = 2.0;

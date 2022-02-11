@@ -41,7 +41,6 @@
 #include <smbus_func.h>
 
 
-
 /** BNO055 Address Alternative **/
 #define BNO055_ADDRESS_A (0x28) // This requires the ADR pin on the bno055 to be low
 /** BNO055 Address Default **/
@@ -345,8 +344,10 @@ class BNO055Driver {
     bool reset();
     // bool calibrate();
     imu_data_t read_imu_data();
+    __u8 reg(reg_t address);
 
-  private:
+
+    private:
     int file;
     std::string device;
     int address;  
