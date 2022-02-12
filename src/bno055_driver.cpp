@@ -33,6 +33,7 @@ namespace bno055_imu {
         _device = device_;
         _address = address_;
         _opmode = OPERATION_MODE_IMUPLUS;
+
     }
 
     void BNO055Driver::init() {
@@ -113,5 +114,18 @@ namespace bno055_imu {
         /* Set previouse operation mode */
         err = set_opmode(OPERATION_MODE_IMUPLUS);
     }
+
+    void BNO055Driver::write8(reg_t reg_, __8 value) {
+        if (bno_i2c_smbus_write_byte_data(file, reg_, value) < 0) {
+             throw std::runtime_error("wirte error in write8 function");
+        }
+    }
+
+    void BNO055Driver::read8(reg_t reg_) {
+        if (bno_i2c_smbus_read_byte_data(file, reg_) < 0) {
+             throw std::runtime_error("read error in read8 function");
+        }
+    }
+
 
 }
