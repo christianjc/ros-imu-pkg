@@ -30,8 +30,9 @@
 
 namespace bno055_imu {
     BNO055Driver::BNO055Driver(std::string device_, int address_){
-        device = device_;
-        address = address_;
+        _device = device_;
+        _address = address_;
+        _opmode = OPERATION_MODE_IMUPLUS;
     }
 
     void BNO055Driver::init() {
@@ -61,12 +62,11 @@ namespace bno055_imu {
         // check for status calibration
 
         // set the external clock 
-        set_external_crystal();
 
         // set units if needed
 
         // Set the device to fusion imu mode
-        set_opmode(OPERATION_MODE_IMUPLUS);
+        set_opmode(_opmode);
         
         __s32 data =  bno_i2c_smbus_read_byte_data(file, BNO055_CHIP_ID_ADDR);
        
@@ -87,17 +87,20 @@ namespace bno055_imu {
     }
 
     void BNO055Driver::set_opmode(opmode_t opmode) {
-         if (bno_i2c_smbus_write_byte_data(file, BNO055_OPR_MODE_ADDR, OPERATION_MODE_IMUPLUS) < 0) {
+         if (bno_i2c_smbus_write_byte_data(file, BNO055_OPR_MODE_ADDR, opmode) < 0) {
              throw std::runtime_error("wirte error in opmode function");
         }
     }
 
     /**
     *   @brief  Sets to use the external crystal (32.768KHz).
-
+    *
     *   @param  use_external_crystal use external crystal boolean.
+    *
+    *   @return  ESP_OK - external crystal was set succesfully.
+    *          ESP_FAIL - external crystal could not be set.
     */
-    void BNO055Driver::set_external_crystal(void) {
+    void set_external_crystal(void) {
         /* Switch to config mode */
         set_opmode(OPERATION_MODE_CONFIG);
 
@@ -109,18 +112,6 @@ namespace bno055_imu {
         
         /* Set previouse operation mode */
         err = set_opmode(OPERATION_MODE_IMUPLUS);
-    }
-
-    void BNO055Driver::write8(reg_t reg_, __8 value) {
-        if (bno_i2c_smbus_write_byte_data(file, BNO055_OPR_MODE_ADDR, value) < 0) {
-             throw std::runtime_error("wirte error in write8 function");
-        }
-    }
-
-    void BNO055Driver::read8(reg_t reg_) {
-        if (bno_i2c_smbus_read_byte_data(file, BNO055_CHIP_ID_ADDR) < 0) {
-             throw std::runtime_error("read error in read8 function");
-        }
     }
 
 }
