@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
         data.angular_velocity.x++;
         data.angular_velocity.y = 2.0;
         data.angular_velocity.z = 2.0;
-         node.read_imu_data(data2);
+        node.read_imu_data(data2);
         pub_bno.publish(data);
 
         rate.sleep();

@@ -351,6 +351,8 @@ class BNO055Driver {
     int file;
     std::string device;
     int address;  
+
+    void set_opmode(opmode_t);
 };
 
 }

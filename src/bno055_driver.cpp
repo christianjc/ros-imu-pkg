@@ -61,13 +61,12 @@ namespace bno055_imu {
         // check for status calibration
 
         // set the external clock 
+        set_external_crystal();
 
         // set units if needed
 
         // Set the device to fusion imu mode
-        if (bno_i2c_smbus_write_byte_data(file, BNO055_OPR_MODE_ADDR, OPERATION_MODE_IMUPLUS) < 0) {
-             throw std::runtime_error("wirte error");
-        }
+        set_opmode(OPERATION_MODE_IMUPLUS);
         
         __s32 data =  bno_i2c_smbus_read_byte_data(file, BNO055_CHIP_ID_ADDR);
        
@@ -85,6 +84,43 @@ namespace bno055_imu {
         ROS_INFO_STREAM(data.angular_velocity_x);
 
         return true;
+    }
+
+    void BNO055Driver::set_opmode(opmode_t opmode) {
+         if (bno_i2c_smbus_write_byte_data(file, BNO055_OPR_MODE_ADDR, OPERATION_MODE_IMUPLUS) < 0) {
+             throw std::runtime_error("wirte error in opmode function");
+        }
+    }
+
+    /**
+    *   @brief  Sets to use the external crystal (32.768KHz).
+
+    *   @param  use_external_crystal use external crystal boolean.
+    */
+    void BNO055Driver::set_external_crystal(void) {
+        /* Switch to config mode */
+        set_opmode(OPERATION_MODE_CONFIG);
+
+        /* set correct page id */
+        write8(BNO055_PAGE_ID_ADDR, 0);
+
+        /* Set the external clock*/
+        write8(BNO055_SYS_TRIGGER_ADDR, 0x80);
+        
+        /* Set previouse operation mode */
+        err = set_opmode(OPERATION_MODE_IMUPLUS);
+    }
+
+    void BNO055Driver::write8(reg_t reg_, __8 value) {
+        if (bno_i2c_smbus_write_byte_data(file, BNO055_OPR_MODE_ADDR, value) < 0) {
+             throw std::runtime_error("wirte error in write8 function");
+        }
+    }
+
+    void BNO055Driver::read8(reg_t reg_) {
+        if (bno_i2c_smbus_read_byte_data(file, BNO055_CHIP_ID_ADDR) < 0) {
+             throw std::runtime_error("read error in read8 function");
+        }
     }
 
 }
