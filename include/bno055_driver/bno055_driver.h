@@ -39,6 +39,7 @@
 #include <thread>
 
 #include <smbus_func.h>
+#include <sensor_msgs/Imu.h>
 
 
 /** BNO055 Address Alternative **/
@@ -339,20 +340,24 @@ typedef struct {
 
 class BNO055Driver {
     public:
-    BNO055Driver(std::string device_, int address_);
-    void init();
-    bool reset();
-    // bool calibrate();
-    bool read_imu_data(imu_data_t &data);
-    __u8 reg(reg_t address);
-
+        BNO055Driver(std::string device_, int address_);
+        void init();
+        bool reset();
+        // bool calibrate();
+        bool read_imu_data(sensor_msgs::Imu &imu);
+        
+        int8_t get_temp(void);
 
     private:
-    int file;
-    std::string device;
-    int address;  
+        int file;
+        std::string _device;
+        int _address;  
+        opmode_t _opmode;
 
-    void set_opmode(opmode_t);
+        void set_opmode(opmode_t);
+        void write8(reg_t reg, __u8 value);
+        __s32 read8(reg_t reg);
+        void set_external_crystal();
 };
 
 }

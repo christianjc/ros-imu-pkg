@@ -35,36 +35,24 @@ int main(int argc, char **argv) {
     /** Making the nodehandle object registers this node with the master node **/
     ros::NodeHandle nh;
 
+    /* Set topic name and queue size */
     ros::Publisher pub_bno = nh.advertise<sensor_msgs::Imu>("imu_data", 10, true);
 
-    sensor_msgs::Imu data;
+    /* Declare imu msg type */
+    sensor_msgs::Imu imu;
 
+    /* Set the loop rate */
     ros::Rate rate(3);
 
     /** Prints a string to the INFO log **/
     ROS_INFO_STREAM("Starting Node");
-    data.header.seq = 1;
-    data.angular_velocity.x = 2.0;
-    data.angular_velocity.y = 2.0;
-    data.angular_velocity.z = 2.0;
-    
+
     bno055_imu::BNO055Driver node("/dev/i2c-1", 0x28);
     node.init();
-    bno055_imu::imu_data_t data2;
-    node.read_imu_data(data2);
-
 
     while(ros::ok()) {
-        data.angular_velocity.x++;
-        data.angular_velocity.y = 2.0;
-        data.angular_velocity.z = 2.0;
-        node.read_imu_data(data2);
-        pub_bno.publish(data);
-
+        node.read_imu_data(imu);
+        pub_bno.publish(imu);
         rate.sleep();
-
     }
-
-
-
 }
