@@ -24,6 +24,9 @@
 
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
+#include <geometry_msgs/Vector3.h>
+#include <ros_imu_pkg/Fusion_imu.h>
+#include <ros_imu_pkg/Raw_imu.h>
 #include <bno055_driver/bno055_driver.h>
 
 int main(int argc, char **argv) {
@@ -33,36 +36,33 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "imu_bno055_node");
 
     /** Making the nodehandle object registers this node with the master node **/
-    ros::NodeHandle nh;
+    ros::NodeHandle nh_fusion;
+    // ros::NodeHandle nh_raw;
 
-    ros::Publisher pub_bno = nh.advertise<sensor_msgs::Imu>("imu_data", 10, true);
+    /* Set topic name and queue size */
+    ros::Publisher pub_bno_fusion = nh_fusion.advertise<ros_imu_pkg::Fusion_imu>("imu_fusion", 10, true);
+    // ros::Publisher pub_bno_raw = nh_raw.advertise<ros_imu_pkg::Raw_imu>("imu_raw", 10, true);
 
-    sensor_msgs::Imu data;
+    /* Declare imu msg type */
+    ros_imu_pkg::Fusion_imu imu_fusion;
+    // ros_imu_pkg::Raw_imu imu_raw;
 
-    ros::Rate rate(2);
+    /* Set the loop rate */
+    ros::Rate rate(3);
 
     /** Prints a string to the INFO log **/
-    ROS_INFO_STREAM("Starting Node");
-    data.header.seq = 1;
-    data.angular_velocity.x = 2.0;
-    data.angular_velocity.y = 2.0;
-    data.angular_velocity.z = 2.0;
-    
-    bno055_imu::BNO055Driver node("/dev/i2c-1", 0x28);
-    node.init();
+    ROS_INFO_STREAM("Starting Node...");
 
+    bno055_imu::BNO055Driver node_fusion("/dev/i2c-1", 0x28, bno055_imu::OPERATION_MODE_IMUPLUS);
+    // bno055_imu::BNO055Driver node_raw("/dev/i2c-1", 0x28, bno055_imu::OPERATION_MODE_ACCGYRO);
+    node_fusion.init();
+    // node_raw.init();
 
     while(ros::ok()) {
-        data.angular_velocity.x++;
-        data.angular_velocity.y = 2.0;
-        data.angular_velocity.z = 2.0;
-
-        pub_bno.publish(data);
-
+        node_fusion.read_imu_data(imu_fusion);
+        // node_raw.read_imu_data_raw(imu_raw);
+        pub_bno_fusion.publish(imu_fusion);
+        // pub_bno_raw.publish(imu_raw);
         rate.sleep();
-
     }
-
-
-
 }

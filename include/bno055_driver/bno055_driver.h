@@ -39,6 +39,9 @@
 #include <thread>
 
 #include <smbus_func.h>
+#include <sensor_msgs/Imu.h>
+#include <ros_imu_pkg/Fusion_imu.h>
+#include <ros_imu_pkg/Raw_imu.h>
 
 
 /** BNO055 Address Alternative **/
@@ -290,34 +293,42 @@ typedef enum
 } temp_unit_t;
 
 /** A structure to configure the units **/
-typedef struct
-{
+typedef struct {
     accel_unit_t accel;
     angular_rate_unit_t angular_rate;
     euler_unit_t euler_angel;
     temp_unit_t temperature;
 } units_config_t;
 
-/** A structure to represent offsets **/
-typedef struct
-{
+/** A structure to represent calibration offsets **/
+typedef struct {
     int16_t accel_offset_x; /**< x acceleration offset */
     int16_t accel_offset_y; /**< y acceleration offset */
     int16_t accel_offset_z; /**< z acceleration offset */
-
     int16_t mag_offset_x; /**< x magnetometer offset */
     int16_t mag_offset_y; /**< y magnetometer offset */
     int16_t mag_offset_z; /**< z magnetometer offset */
-
     int16_t gyro_offset_x; /**< x gyroscrope offset */
     int16_t gyro_offset_y; /**< y gyroscrope offset */
     int16_t gyro_offset_z; /**< z gyroscrope offset */
-
     int16_t accel_radius; /**< acceleration radius */
-
     int16_t mag_radius; /**< magnetometer radius */
 } offsets_t;
 
+/* A structur to represent imu measurements */
+typedef struct {
+    int16_t acceleration_x;
+    int16_t acceleration_y;
+    int16_t acceleration_z; 
+    int16_t magnetometer_x;
+    int16_t magnetometer_y;
+    int16_t magnetometer_z;
+    int16_t angular_velocity_x;
+    int16_t angular_velocity_y;
+    int16_t angular_velocity_z;
+} imu_data_raw_t;
+
+/* A structur to represent imu measurements */
 typedef struct {
     int16_t angular_velocity_x;
     int16_t angular_velocity_y;
@@ -339,18 +350,35 @@ typedef struct {
 
 class BNO055Driver {
     public:
-    BNO055Driver(std::string device_, int address_);
-    void init();
-    bool reset();
-    // bool calibrate();
-    imu_data_t read_imu_data();
-    __u8 reg(reg_t address);
+        BNO055Driver(std::string device_, int address_, opmode_t opmode_);
+        void init();
+        void reset();
+        // bool calibrate();
+        bool read_imu_data(ros_imu_pkg::Fusion_imu &imu);
+        bool read_imu_data_raw(ros_imu_pkg::Raw_imu &imu);
+        int8_t get_temp(void);
+        bool calibrate_sensor(void);
 
 
     private:
-    int file;
-    std::string device;
-    int address;  
+        int file;
+        std::string _device;
+        int _address;  
+        opmode_t _opmode;
+        offsets_t _sensor_prof;
+
+        void set_opmode(opmode_t);
+        void write8(reg_t reg, __u8 value);
+        __s32 read8(reg_t reg);
+        void set_external_crystal(void);
+
+
+        bool set_sensor_offsets(offsets_t);
+        offsets_t get_sensor_offsets(void);
+        bool save_sensor_profile(offsets_t);
+        bool load_sensor_profile(void);
+        bool isFullyCalibrated(void);
+        void get_calibration_state(uint8_t *sys, uint8_t *gyro, uint8_t *accel, uint8_t *mag);
 };
 
 }
