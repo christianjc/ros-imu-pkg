@@ -24,6 +24,8 @@
 
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
+#include <geometry_msgs/Vector3.h>
+#include <ros_imu_pkg/Fusion_imu.h>
 #include <bno055_driver/bno055_driver.h>
 
 int main(int argc, char **argv) {
@@ -36,16 +38,16 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh;
 
     /* Set topic name and queue size */
-    ros::Publisher pub_bno = nh.advertise<sensor_msgs::Imu>("imu_data", 10, true);
+    ros::Publisher pub_bno = nh.advertise<ros_imu_pkg::Fusion_imu>("imu_fusion", 10, true);
 
     /* Declare imu msg type */
-    sensor_msgs::Imu imu;
+    ros_imu_pkg::Fusion_imu imu;
 
     /* Set the loop rate */
     ros::Rate rate(3);
 
     /** Prints a string to the INFO log **/
-    ROS_INFO_STREAM("Starting Node");
+    ROS_INFO_STREAM("Starting Node...");
 
     bno055_imu::BNO055Driver node("/dev/i2c-1", 0x28);
     node.init();
