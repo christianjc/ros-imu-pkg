@@ -41,6 +41,7 @@
 #include <smbus_func.h>
 #include <sensor_msgs/Imu.h>
 #include <ros_imu_pkg/Fusion_imu.h>
+#include <ros_imu_pkg/Raw_imu.h>
 
 
 /** BNO055 Address Alternative **/
@@ -316,6 +317,19 @@ typedef struct {
 
 /* A structur to represent imu measurements */
 typedef struct {
+    int16_t acceleration_x;
+    int16_t acceleration_y;
+    int16_t acceleration_z; 
+    int16_t magnetometer_x;
+    int16_t magnetometer_y;
+    int16_t magnetometer_z;
+    int16_t angular_velocity_x;
+    int16_t angular_velocity_y;
+    int16_t angular_velocity_z;
+} imu_data_raw_t;
+
+/* A structur to represent imu measurements */
+typedef struct {
     int16_t angular_velocity_x;
     int16_t angular_velocity_y;
     int16_t angular_velocity_z;
@@ -336,11 +350,12 @@ typedef struct {
 
 class BNO055Driver {
     public:
-        BNO055Driver(std::string device_, int address_);
+        BNO055Driver(std::string device_, int address_, opmode_t opmode_);
         void init();
         void reset();
         // bool calibrate();
         bool read_imu_data(ros_imu_pkg::Fusion_imu &imu);
+        bool read_imu_data_raw(ros_imu_pkg::Raw_imu &imu);
         int8_t get_temp(void);
         bool calibrate_sensor(void);
 

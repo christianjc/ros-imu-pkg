@@ -26,6 +26,7 @@
 #include <sensor_msgs/Imu.h>
 #include <geometry_msgs/Vector3.h>
 #include <ros_imu_pkg/Fusion_imu.h>
+#include <ros_imu_pkg/Raw_imu.h>
 #include <bno055_driver/bno055_driver.h>
 
 int main(int argc, char **argv) {
@@ -35,13 +36,16 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "imu_bno055_node");
 
     /** Making the nodehandle object registers this node with the master node **/
-    ros::NodeHandle nh;
+    // ros::NodeHandle nh_fushion;
+    ros::NodeHandle nh_raw;
 
     /* Set topic name and queue size */
-    ros::Publisher pub_bno = nh.advertise<ros_imu_pkg::Fusion_imu>("imu_fusion", 10, true);
+    // ros::Publisher pub_bno_fushion = nh_fushion.advertise<ros_imu_pkg::Fusion_imu>("imu_fusion", 10, true);
+    ros::Publisher pub_bno_raw = nh_raw.advertise<ros_imu_pkg::Raw_imu>("imu_raw", 10, true);
 
     /* Declare imu msg type */
-    ros_imu_pkg::Fusion_imu imu;
+    // ros_imu_pkg::Fusion_imu imu_fusion;
+    ros_imu_pkg::Raw_imu imu_raw;
 
     /* Set the loop rate */
     ros::Rate rate(3);
@@ -49,12 +53,16 @@ int main(int argc, char **argv) {
     /** Prints a string to the INFO log **/
     ROS_INFO_STREAM("Starting Node...");
 
-    bno055_imu::BNO055Driver node("/dev/i2c-1", 0x28);
-    node.init();
+    // bno055_imu::BNO055Driver node_fusion("/dev/i2c-1", 0x28, bno055_imu::OPERATION_MODE_IMUPLUS);
+    bno055_imu::BNO055Driver node_raw("/dev/i2c-1", 0x28, bno055_imu::OPERATION_MODE_ACCGYRO);
+    // node_fusion.init();
+    node_raw.init();
 
     while(ros::ok()) {
-        node.read_imu_data(imu);
-        pub_bno.publish(imu);
+        // node_fusion.read_imu_data(imu_fushion);
+        node_raw.read_imu_data_raw(imu_raw);
+        // pub_bno_fushion.publish(imu_fushion);
+        pub_bno_raw.publish(imu_raw);
         rate.sleep();
     }
 }

@@ -30,10 +30,10 @@
 
 
 namespace bno055_imu {
-    BNO055Driver::BNO055Driver(std::string device_, int address_){
+    BNO055Driver::BNO055Driver(std::string device_, int address_, opmode_t opmode_){
         _device = device_;
         _address = address_;
-        _opmode = OPERATION_MODE_IMUPLUS;
+        _opmode =   opmode_; //OPERATION_MODE_IMUPLUS;
     }
 
     void BNO055Driver::init() {
@@ -133,6 +133,39 @@ namespace bno055_imu {
         imu.gravity_vector.x = ((double)data.gravity_vector_x) / 100.0;
         imu.gravity_vector.y = ((double)data.gravity_vector_y) / 100.0;
         imu.gravity_vector.z = ((double)data.gravity_vector_z) / 100.0;
+
+        return true;
+    }
+
+    /**
+      *  @brief reads imu sensor measurments 
+      */
+    bool BNO055Driver::read_imu_data_raw(ros_imu_pkg::Raw_imu &imu) {
+        imu_data_raw_t data;
+        if(bno_i2c_smbus_read_i2c_block_data(file, BNO055_ACCEL_DATA_X_LSB_ADDR, 18, (uint8_t*)&data) != 18) {
+            throw std::runtime_error("read error");
+            return false;
+        }
+
+        /* Accelerometer */
+        /* 1m/s^2 = 100 LSB */
+        /* 1mg = 1 LSB */
+        imu.acceleration.x = ((double)data.acceleration_x) / 100.0;
+        imu.acceleration.y = ((double)data.acceleration_y) / 100.0;
+        imu.acceleration.z = ((double)data.acceleration_z) / 100.0;
+
+        /* Magnetometer */
+        /* 1uT = 16 LSB */
+        imu.magnetometer.x = ((double)data.magnetometer_x) / 16.0;
+        imu.magnetometer.y = ((double)data.magnetometer_y) / 16.0;
+        imu.magnetometer.z = ((double)data.magnetometer_z) / 16.0;
+
+        /* Gyroscope */
+        /* 1dps = 16 LSB */
+        /* 1rps = 900 LSB */
+        imu.angular_velocity.x = ((double)data.angular_velocity_x) / 16.0;
+        imu.angular_velocity.y = ((double)data.angular_velocity_y) / 16.0;
+        imu.angular_velocity.z = ((double)data.angular_velocity_z) / 16.0;
 
         return true;
     }

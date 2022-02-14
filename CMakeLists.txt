@@ -53,6 +53,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   Fusion_imu.msg
+  Raw_imu.msg
 )
 
 ## Generate services in the 'srv' folder
